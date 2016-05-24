@@ -1,0 +1,92 @@
+
+1) module
+module load icc_15.0.3-impi_5.0.3
+
+2) unpack plumed
+
+3) configure plumed 
+./configure --prefix=$INST
+
+4) install
+make install
+
+5) plumed environment
+
+export PATH=$PATH:/gscratch/pfaendtner/codes/plumed2-BayesBias/bin/bin
+export INCLUDE=$INCLUDE:/gscratch/pfaendtner/codes/plumed2-BayesBias/bin/include
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/gscratch/pfaendtner/codes/plumed2-BayesBias/bin/lib
+
+6) which versions of GMX is BayesBias tree v 2.2 compatible with? 
+
+      -bash-4.1$ plumed patch -p 
+      warning:regcache incompatible with malloc
+      PLUMED patching tool
+      
+      1) amber14	    4) gromacs-5.0.4	7) namd-2.8
+      2) gromacs-4.5.7    5) gromacs-5.1.2	8) namd-2.9
+      3) gromacs-4.6.7    6) lammps-6Apr13	9) qespresso-5.0.2
+
+lets gry GMX 5.1.2. , maybe we will get lucky 
+
+7) unpack 5.1.2 
+
+8) run patch in the root directory 
+      
+      -bash-4.1$ cd ../gromacs-5.1.2
+      -bash-4.1$ plumed patch -p
+      warning:regcache incompatible with malloc
+      PLUMED patching tool
+      
+      1) amber14	    4) gromacs-5.0.4	7) namd-2.8
+      2) gromacs-4.5.7    5) gromacs-5.1.2	8) namd-2.9
+      3) gromacs-4.6.7    6) lammps-6Apr13	9) qespresso-5.0.2
+      Choose the best matching code/version:5
+      MD engine: gromacs-5.1.2
+      PLUMED location: /gscratch/pfaendtner/codes/plumed2-BayesBias/bin/lib/plumed
+      diff file: /gscratch/pfaendtner/codes/plumed2-BayesBias/bin/lib/plumed/patches/gromacs-5.1.2.diff
+      sourcing config file: /gscratch/pfaendtner/codes/plumed2-BayesBias/bin/lib/plumed/patches/gromacs-5.1.2.config
+      Linking Plumed.h and Plumed.inc (shared mode)
+      Patching with on-the-fly diff from stored originals
+      patching file ./src/gromacs/CMakeLists.txt
+      patching file ./src/gromacs/mdlib/force.cpp
+      patching file ./src/gromacs/mdlib/minimize.cpp
+      patching file ./src/programs/mdrun/md.cpp
+      patching file ./src/programs/mdrun/mdrun.cpp
+      patching file ./src/programs/mdrun/repl_ex.cpp
+      
+      PLUMED is compiled with MPI support so you can configure gromacs-5.1.2 with MPI
+
+9)  plumed is patched, now try cmake and see if it works
+
+      mkdir bin build_gromacs
+      cd bin
+      export GMXINST=`pwd`
+      cd ../build_gromacs/
+      cmake .. -DGMX_MPI=ON -DCMAKE_INSTALL_PREFIX=$GMXINST  
+
+
+NOTE: to add different versions (like hte 8core version) : 
+cmake .. -DGMX_MPI=ON -DCMAKE_INSTALL_PREFIX=$GMXINST  -DGMX_DEFAULT_SUFFIX=OFF -DGMX_BINARY_SUFFIX=_8c -DGMX_LIBS_SUFFIX=_8c
+
+10) cmake was successful - next build and install 
+
+      make -j12 install 
+
+11) to use GMX 5.1.2 + PLUMED 2.2-BayesBias tree set these variables in your PBS file: 
+
+module load icc_15.0.3-impi_5.0.3
+export PATH=$PATH:/gscratch/pfaendtner/codes/plumed2-BayesBias/bin/bin
+export INCLUDE=$INCLUDE:/gscratch/pfaendtner/codes/plumed2-BayesBias/bin/include
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/gscratch/pfaendtner/codes/plumed2-BayesBias/bin/lib
+source /gscratch/pfaendtner/codes/gromacs-5.1.2/inst/bin/GMXRC
+
+12) things have changed if you are familiar only with the old version that had all the individual gromacs commands, now you will use "gmx_mpi grompp" instead of "grompp"
+
+gmx_mpi grompp -c start.gro -p topol.top -f nvt.mdp 
+
+to run a 4 replica multiple walkers job: 
+
+mpiexec.hydra -np 8 gmx_mpi mdrun -plumed plumed.dat -multi 4 
+
+example = /gscratch/pfaendtner/codes/gromacs-5.1.2/multiple_walkers_test
+
