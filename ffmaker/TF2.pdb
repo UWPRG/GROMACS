@@ -1,0 +1,30 @@
+ATOM      1  N1  TF2     1      -0.328   0.532   1.567
+ATOM      2  S1  TF2     1      -1.288  -0.370   0.695
+ATOM      3  S2  TF2     1      -0.760   1.387   2.809
+ATOM      4  O1  TF2     1      -1.964  -1.410   1.412
+ATOM      5  O2  TF2     1      -2.031   0.350  -0.297
+ATOM      6  O3  TF2     1       0.082   2.537   2.935
+ATOM      7  O4  TF2     1      -2.175   1.543   2.965
+ATOM      8  C1  TF2     1       0.007  -1.230  -0.245
+ATOM      9  C2  TF2     1      -0.261   0.356   4.223
+ATOM     10  F1  TF2     1      -0.573  -2.070  -1.081
+ATOM     11  F2  TF2     1       0.738  -0.399  -0.950
+ATOM     12  F3  TF2     1       0.800  -1.922   0.540
+ATOM     13  F4  TF2     1       1.030   0.108   4.197
+ATOM     14  F5  TF2     1      -0.900  -0.788   4.238
+ATOM     15  F6  TF2     1      -0.530   0.992   5.346
+CONECT    1    2    3
+CONECT    2    1    4    5    8
+CONECT    3    1    6    7    9
+CONECT    4    2
+CONECT    5    2
+CONECT    6    3
+CONECT    7    3
+CONECT    8    2   10   11   12
+CONECT    9    3   13   14   15
+CONECT   10    8
+CONECT   11    8
+CONECT   12    8
+CONECT   13    9
+CONECT   14    9
+CONECT   15    9

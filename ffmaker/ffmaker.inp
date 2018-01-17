@@ -1,7 +1,7 @@
 ###ALL COMMANDS ARE CASE SENSITIVE. SEE EXAMPLES###
 
 ###STANDARD INPUTS###
-RESIDUE_NAME=TFB    #three characters, letters should be caps. example: BMI, 1EM, P00
+RESIDUE_NAME=TF2    #three characters, letters should be caps. example: BMI, 1EM, P00
 INPUT_TYPE=pdb      #com (recommended), pdb (also a good choice), mol2
 CHARGE=-1            #1,-1, or 0 usually
 SCALED=yes           #Do you want to scale the charges? (yes, no)
