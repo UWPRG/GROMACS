@@ -10,7 +10,7 @@ And acypye.py should be in the directory.
 
 # Quick Start Guide
 
-you will need to edit boxmaker.inp to reflect the molecule you are parameterizing (and make any additional changes suited for your needs):
+you will need to edit boxmaker.inp to reflect the system you are initializing:
 
 ```
 ###INPUT FILE FOR BOXMAKER. INPUTS ARE CASE SENSITIVE. SEE EXAMPLES###
@@ -55,6 +55,10 @@ SSBOND_B_2=40
 
 You will need to provide .frcmod, .pdb, and .lib files for boxmaker (these can be generated using ffmaker).
 
-guassian/antechamber typically run fine on an interactive node (do not run on the login nodes):
+this will typically run fine on an interactive node (do not run on the login nodes):
 
 `source boxmaker.bash`
+
+alternatively you can submit the job to the que:
+
+`qsub boxmaker.pbs`
