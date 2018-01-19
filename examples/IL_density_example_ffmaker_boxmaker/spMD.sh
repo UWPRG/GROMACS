@@ -33,8 +33,8 @@ done
 echo " "
 echo "beginning energy minimization"
 cd $ILhome
-if [ ! -d $ILhome/mini ] ; then
-  mkdir mini
+if [ ! -d $ILhome/min ] ; then
+  mkdir min
   echo "made mini directory"
 fi
 if [ ! -f min/confout.gro ] && [ ! -f min/md.log ] ; then
@@ -45,17 +45,10 @@ if [ ! -f min/confout.gro ] && [ ! -f min/md.log ] ; then
   cp $SETUP/conf.gro min/
   cp $SETUP/topol.top min/
   cd min/
-  if [ "$SYSTYPE" == "hyak" ] ; then
   gmx_8c grompp -f min.mdp
   source nodeseaker.sh
   wait
   qsub GROMACS.pbs
-  fi
-  if [ "$SYSTYPE" == "linux" ] ; then
-  grompp -f min.mdp
-  mdrun -v
-  wait
-  fi
   cd -
 fi
 while true ; do
@@ -117,4 +110,4 @@ while true ; do
 done
 echo " "
 echo "production runs complete"
-cd $INPUTS
+cd $SCRIPTS

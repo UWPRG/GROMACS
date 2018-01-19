@@ -1,12 +1,13 @@
 #!/bin/bash
-if [ ! -d $PWD/../${name} ] ; then
-  mkdir $PWD/../${name}
+ROOT=/suppscr/pfaendtner/wesley/temp
+SCRIPTS=$ROOT/scripts
+SYSTEMS=$ROOT/systems
+STRUCTURES=$ROOT/structures
+INPUTS=$ROOT/inputs
+if [ ! -d $ROOT/systems/${name} ] ; then
+  mkdir $ROOT/systems/${name}
 fi
-PROJROOT=$PWD/../${name}
-SCRIPTS=$PWD/../scripts
-PROPERTIES=$PWD/../properties
-STRUCTURES=$PWD/../structures
-INPUTS=$PWD/../inputs
+PROJROOT=$ROOT/systems/${name}
 source $SCRIPTS/activate_amber14.sh
 source $SCRIPTS/environment.sh
 if [ ! -d $PROJROOT/boxmaker ] ; then

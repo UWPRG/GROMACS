@@ -26,4 +26,4 @@ if [ ! -f ${ILhome}/analysis/${name}.dens ] ; then
   mv temp ${ILhome}/analysis/${name}.dens 
 fi
 echo "equilibrium analysis complete"
-cd $INPUTS
+cd $SCRIPTS

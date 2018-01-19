@@ -44,7 +44,7 @@ echo ""
 
 echo Starting boxmaker using the following inputs:
 echo ""
-cat $SANDBOX/${name}.inp
+cat $INPUTS/${name}.inp
 echo ""
 
 ###Setting an exit test variable to exit loops when errors are found.

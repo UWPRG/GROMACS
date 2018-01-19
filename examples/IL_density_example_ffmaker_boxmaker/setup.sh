@@ -1,4 +1,6 @@
 #!/bin/bash
+ROOT=$PWD
+sed -i "2s~.*~ROOT=${ROOT}~" directory.inp
 mkdir scripts
 mkdir structures
 mkdir inputs

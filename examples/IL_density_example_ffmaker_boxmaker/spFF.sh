@@ -44,4 +44,4 @@ while true ; do
 done
 echo " "
 echo "ffmaker complete"
-cd $INPUTS
+cd $SCRIPTS
