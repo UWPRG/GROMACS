@@ -1,0 +1,19 @@
+#!/bin/bash
+if [ ! -d $PWD/../${name} ] ; then
+  mkdir $PWD/../${name}
+fi
+PROJROOT=$PWD/../${name}
+SCRIPTS=$PWD/../scripts
+PROPERTIES=$PWD/../properties
+STRUCTURES=$PWD/../structures
+INPUTS=$PWD/../inputs
+source $SCRIPTS/activate_amber14.sh
+source $SCRIPTS/environment.sh
+if [ ! -d $PROJROOT/boxmaker ] ; then
+  mkdir $PROJROOT/boxmaker 
+fi
+if [ ! -d $PROJROOT/production_md ] ; then
+  mkdir $PROJROOT/production_md
+fi
+SETUP=$PROJROOT/boxmaker
+ILhome=$PROJROOT/production_md

@@ -1,0 +1,18 @@
+tolerance 2.0
+output packed.pdb
+filetype pdb
+add_amber_ter
+seed 192555
+nloop 1000
+
+structure BMI.pdb
+  resnumbers 2
+  number 428
+  inside box 0. 0. 0. 50 50 50
+end structure
+
+structure TF2.pdb
+  resnumbers 2
+  number 428
+  inside box 0. 0. 0. 50 50 50
+end structure
