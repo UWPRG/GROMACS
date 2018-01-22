@@ -7,10 +7,10 @@ while IFS=',' read xx yy zz ; do
   sed -i "19s/.*/IL_CAT=${xx}           \#Resname of IL cation and all associated files/" ${xx}_${yy}.inp
   sed -i "20s/.*/IL_AN=${yy}            \#Resname of IL anion and all associated files/" ${xx}_${yy}.inp
   sed -i "24s/.*/DENS=${zz}             \#organic molecule, DES, or IL in g\/cm^3. Guess 1 if unknown/" ${xx}_${yy}.inp
-ayy=(`grep ATOM ../structures/${yy}.pdb | awk '{print $3}' | sed "s/[[:digit:].-]//g" | 
+ayy=(`grep HETATM ../structures/${yy}.pdb | awk '{print $3}' | sed "s/[[:digit:].-]//g" | 
 awk -vFS="" '{for(i=1;i<=NF;i++)w[tolower($i)]++}END \
   {for(i in w)print i,w[i] }'`)
-axx=(`grep ATOM ../structures/${xx}.pdb | awk '{print $3}' | sed "s/[[:digit:].-]//g" | 
+axx=(`grep HETATM ../structures/${xx}.pdb | awk '{print $3}' | sed "s/[[:digit:].-]//g" | 
 awk -vFS="" '{for(i=1;i<=NF;i++)w[tolower($i)]++}END \
   {for(i in w)print i,w[i] }'`)
 b=0
@@ -69,5 +69,5 @@ echo "${mw}"
     echo "oxygens: $o"
     echo "sulfurs: $s"
 sed -i "22s/.*/MOLM=${mw}           #Molar mass of the organic molecule or IL pair in amu/" ${xx}_${yy}.inp
-cd -
+cd ../scripts
 done < "$1"

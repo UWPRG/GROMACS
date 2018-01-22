@@ -76,7 +76,7 @@ if [ -f $ILhome/min/confout.gro ] ; then
     cd $ILhome/min/
     cp confout.gro ../equilibrate/conf.gro
     cd -
-    cp $SCRIPTS/GROMACS_5.pbs equilibrate/GROMACS.pbs
+    cp $SCRIPTS/GROMACS.pbs equilibrate/GROMACS.pbs
     cp $INPUTS/npt.mdp equilibrate/npt.mdp
     cp $SCRIPTS/nodeseaker.sh equilibrate/nodeseaker.sh
     cp min/topol.top equilibrate/
