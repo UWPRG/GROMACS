@@ -1,9 +1,9 @@
 #!/bin/bash
 #PBS -N leureo_mult.nvt	
-#PBS -l nodes=1:ppn=8
-# PBS -l feature=16core
+#PBS -l nodes=1:ppn=16
+#PBS -l feature=16core
 #PBS -l mem=22gb
-#PBS -l walltime=2:00:00
+#PBS -l walltime=24:00:00
 ## Put the output from jobs into the below directory
 ## Put both the stderr and stdout into a single file
 #PBS -j oe

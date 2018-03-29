@@ -5,6 +5,18 @@ if [ ! -d ${ILhome}/analysis ] ; then
 fi
   cd ${ILhome}/equilibrate
 ###*****************************************************************
+###heat capacity   
+if [ ! -f ${ILhome}/analysis/${name}.cpt ] ; then
+  nmol=`tail -2 conf.gro | head -1 | awk '{print $1}' | sed "s/[[:alpha:].-]/ /g" | awk '{print $1}'`
+  echo "calculating heat capacity" 
+  echo 10 13 22 0 | gmx_8c energy -f ener.edr -driftcorr -fluct_props -nmol ${nmol} >> temp
+  rm energy.xvg
+  grep -i 'Heat capacity' temp >> ${name}.cpt 
+  mv ${name}.cpt ${ILhome}/analysis/
+  rm temp
+fi
+wait
+###*****************************************************************
 ###density
 if [ ! -f density.xvg ] ; then
 echo "calculating density" 
@@ -16,7 +28,6 @@ while true ; do
   if [ -f density.xvg ] ; then
     break
   else
-    echo "waiting for density calculation"
     sleep 20 
   fi
 done

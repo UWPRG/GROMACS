@@ -5,6 +5,7 @@ mkdir scripts
 mkdir structures
 mkdir inputs
 mkdir systems
+mv salt.sh inputs/
 mv *.pdb structures/
 mv *.inp inputs/
 mv *.mdp inputs/

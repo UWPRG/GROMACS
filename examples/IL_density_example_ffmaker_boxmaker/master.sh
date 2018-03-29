@@ -28,4 +28,4 @@ source spAnalysis.sh
 wait
 
 echo "job complete"
-echo "job complete for ${name}" | mail -s "message from hyak" wesleybeckner@gmail.com
+echo "job complete for ${name} in ${ROOT}" | mail -s "message from hyak" wesleybeckner@gmail.com

@@ -1,5 +1,5 @@
 #!/bin/bash
-ROOT=/suppscr/pfaendtner/wesley/temp
+ROOT=/suppscr/pfaendtner/wesley/from_genetic/model_3/90
 SCRIPTS=$ROOT/scripts
 SYSTEMS=$ROOT/systems
 STRUCTURES=$ROOT/structures

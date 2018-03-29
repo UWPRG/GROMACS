@@ -21,7 +21,6 @@ if [ ! -f $SETUP/conf.gro ] ; then
 fi
 while true ; do
   if [ ! -f $SETUP/conf.gro ] ; then
-    echo "waiting for boxmaker to complete"
     sleep 60
   else
     echo "boxmaker complete... moving forward"
@@ -41,19 +40,18 @@ if [ ! -f min/confout.gro ] && [ ! -f min/md.log ] ; then
   echo "initiating energy minimization" 
   cp $INPUTS/min.mdp min/
   cp $SCRIPTS/GROMACS.pbs min/GROMACS.pbs
-  cp $SCRIPTS/nodeseaker.sh min/nodeseaker.sh
+  #cp $SCRIPTS/nodeseaker.sh min/nodeseaker.sh
   cp $SETUP/conf.gro min/
   cp $SETUP/topol.top min/
   cd min/
   gmx_8c grompp -f min.mdp
-  source nodeseaker.sh
+  #source nodeseaker.sh
   wait
   qsub GROMACS.pbs
   cd -
 fi
 while true ; do
   if [ ! -f $ILhome/min/confout.gro ] ; then
-    echo "waiting for minimization to complete"
     sleep 60
   else
     echo "minimization complete... moving forward"
@@ -78,18 +76,24 @@ if [ -f $ILhome/min/confout.gro ] ; then
     cd -
     cp $SCRIPTS/GROMACS.pbs equilibrate/GROMACS.pbs
     cp $INPUTS/npt.mdp equilibrate/npt.mdp
-    cp $SCRIPTS/nodeseaker.sh equilibrate/nodeseaker.sh
+    #cp $SCRIPTS/nodeseaker.sh equilibrate/nodeseaker.sh
     cp min/topol.top equilibrate/
     cd equilibrate/
     sed -i "51s/.*/ref_t			= ${currentTemp}/" npt.mdp 
     sed -i "62s/.*/gen_temp		= ${currentTemp}/" npt.mdp 
     gmx_8c grompp -f npt.mdp -maxwarn 1
-    source nodeseaker.sh
+    #source nodeseaker.sh
     wait
     qsub GROMACS.pbs
     sleep 5
     cd -
-    echo "equilibration setup complete" 
+    echo "equilibration setup complete"
+  fi 
+  bad_files=`ls $ILhome/equilibrate/step* | wc -l`  
+  if [ $bad_files -gt 0 ] ; then
+    echo "did not properly minimize, exiting"
+    #echo "equilibration error for ${name} in ${ROOT}" | mail -s "sad message from hyak" wesleybeckner@gmail.com
+    return 1
   else
     echo "It looks like equilibration is currently running"
   fi
@@ -98,7 +102,12 @@ cd $ILhome/
 while true ; do
   if [ ! -f $ILhome/equilibrate/confout.gro ] ; then
     sleep 600
-    echo "waiting for equilibration to complete"
+    bad_files=`ls $ILhome/equilibrate/step* | wc -l`  
+    if [ $bad_files -gt 0 ] ; then
+      echo "did not properly minimize, exiting"
+      #echo "equilibration error for ${name} in ${ROOT}" | mail -s "message from hyak" wesleybeckner@gmail.com
+      return 1
+    fi
     if [ -f $ILhome/equilibrate/md.log ] ; then 
       tail -11 $ILhome/equilibrate/md.log
     fi
