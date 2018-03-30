@@ -19,7 +19,8 @@ $ tree
 │   ├── min.mdp
 │   ├── npt.mdp
 │   ├── packmol.inp
-│   └── salt.inp
+│   ├── salt.inp
+│   └── salt.sh
 ├── scripts
 │   ├── acpype.py
 │   ├── activate_amber14.sh
@@ -29,7 +30,7 @@ $ tree
 │   ├── ffmaker.bash
 │   ├── GROMACS.pbs
 │   ├── master.sh
-│   ├── salt.sh
+│   ├── nodeseaker.sh
 │   ├── setup.sh
 │   ├── spAnalysis.sh
 │   ├── spFF.sh
@@ -45,9 +46,9 @@ within `salt.inp` you will find:
 
 `BMI,TF2,1.456`
 
-executing the following command within the scripts directory:
+executing the following command within the inputs directory:
 
-`source salt.sh ../inputs/salt.inp`
+`source salt.sh salt.inp`
 
 will produce an output like the following:
 
@@ -69,9 +70,9 @@ You will notice a new file has been added to your directory: `BMI_TF2.inp`
 
 # Simulation & Analysis
 
-In the same directory run:
+In the scripts directory run:
 
-`source master BMI_TF2`
+`source master.sh BMI_TF2`
 
 and ffmaker/boxmaker will execute for the BMI_TF2 system along with an energy minimization and npt equilibration step in GROMACS. Because we are only interested in analyzing the density for this demo, an automated analysis of the density is performed on the equilibration step--density resolves quickly in an IL simulation. 
 
