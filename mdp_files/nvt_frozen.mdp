@@ -5,7 +5,8 @@
 ;
 ;define			=  -DPOSRES
 integrator		=  md 
-nsteps			=  500000
+nsteps			=  500000 ; 1 ns total
+nstcalcenergy           =  1000 ; set to 1 for PLUMED sims in WTE
 dt			=  0.002
 ;
 ; Removing CM Translation and Rotation
@@ -14,59 +15,61 @@ nstcomm			=  1000
 ;
 ; Output Control 
 nstlog			= 1000
-nstenergy		= 1000
+nstenergy		= 100
 nstxout			= 0
 nstvout			= 0
 nstxtcout               = 1000
 nstfout			= 0
 ;
 ; Group Definition
-;xtc-precision		= 5000
-;xtc-grps		= Protein COOH COO
+xtc-precision           = 5000
+xtc-grps                = System
 ;
 ; Neighbour Searching
 nstlist			= 10
 ns_type			= grid
 pbc			= xyz
-rlist			= 1.1 
+rlist			= 1.0 
 ;
 ; Electrostatic
-rcoulomb		= 1.1
+rcoulomb		= 1.0
 coulombtype		= pme
 fourierspacing		= 0.12
 ;periodic_molecules 	= yes
 ;
-; VdW
-vdw-type            	= Shift
-rvdw                	= 1.0
+; Van der Waals
+vdw-type                = Cut-off
+vdw_modifier            = Force-switch
+rvdw                    = 1.0
+rvdw-switch             = 0.9
+cutoff-scheme = Verlet
 ;
 ; Constraints
-constraints		= h-bonds 
+constraints		= all-bonds 
 constraint-algorithm	= lincs
 lincs_iter		= 4
-;
-; Freeze Groups
-freezegrps		= Tails
-freezedim		= Y Y Y
-;energygrp		= 
-;energygrp_excl		= 
 ;
 ; Temperature
 Tcoupl			= v-rescale 
 tc_grps			= system 
 tau_t			= 0.1
-ref_t			= 300
-;
-; Pressure
-Pcoupl			=  no
-;Pcoupl			=  berendsen
-;Pcoupltype		=  semiisotropic
-;tau_p			=  0.5 0.5
-;compressibility		=  0.0 4.5e-5
-;ref_p			=  0.0 1.0 
+ref_t			= 298.15
 ;
 ; Initial Velocities
-gen_vel			= yes
-gen_temp		= 300
-gen_seed		= -1
-
+gen_vel                 = yes
+continuation            = no
+gen_temp                = 298.15
+gen_seed                = -1
+;
+; Pressure
+Pcoupl			=  berendsen ; parrinello-rahman  berendsen (for equilibration only)
+Pcoupltype		=  isotropic
+tau_p			=  1.0
+compressibility		=  4.5e-5
+ref_p			=  1.0 
+;
+; Freeze Groups
+freezegrps              = Tails
+freezedim               = Y Y Y
+;energygrp              =
+;energygrp_excl         =;

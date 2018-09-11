@@ -1,0 +1,71 @@
+;
+;       GROMACS
+;       Input for NVT anneal
+;
+;
+define                  =  -DPOSRES
+integrator              =  md
+nsteps                  =  125000  ; 250 ps
+dt                      =  0.002
+;
+; Removing CM Translation and Rotation
+comm_mode               =  Linear
+nstcomm                 =  1000
+;
+; Output Control
+nstlog                  = 1000
+nstenergy               = 1000
+nstxout                 = 0
+nstvout                 = 0
+nstxtcout               = 100
+xtc_grps                = Protein
+nstfout                 = 0
+;
+; Neighbour Searching
+nstlist                 = 10
+ns_type                 = grid
+pbc                     = xyz
+rlist                   = 1.0
+;
+; Electrostatic
+rcoulomb                = 1.0
+coulombtype             = pme
+fourierspacing          = 0.12
+;periodic_molecules     = yes
+;
+; VdW
+vdw-type                = shift
+rvdw                    = 1.0
+;
+; Constraints
+constraints             = h-bonds
+constraint-algorithm    = lincs
+lincs_iter              = 4
+;
+; Temperature
+Tcoupl                  = v-rescale
+tc_grps                 = system
+tau_t                   = 0.05
+ref_t                   = 5
+;
+;
+;; Simulated annealing
+annealing               = single     ; single sequence of points for each T-coupling group (tc_grps = system)
+annealing_npoints       = 2          ; in this case two points - start and end temperatures
+annealing_time          = 0 240      ; time frame of heating - in this case heat over a period of 15 ps
+annealing_temp          = 5 298.15   ; start and end temperatures
+;
+;
+; Pressure
+Pcoupl                  =  no
+;Pcoupl                 =  berendsen
+;Pcoupltype             =  semiisotropic
+;tau_p                  =  0.5 0.5
+;compressibility        =  0.0 4.5e-5
+;ref_p                  =  0.0 1.0
+;
+; Initial Velocities
+gen_vel                 = yes
+gen_temp                = 5
+gen_seed                = -1
+
