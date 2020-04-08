@@ -1,0 +1,88 @@
+
+To compile a later version GROMACS with CUDA, you need to prepare higher version of gcc and cuda than what's available on Mox. You can use Chowdhury's cuda-10.1, but you need to install gcc on your own mox. To do so, you should instiall anaconda first. 
+
+1. grab a build node to install anaconda and gcc
+	srun -p build --time=2:00:00 --mem=20G --pty /bin/bash
+2. get the lastest version of Anaconda. Mine was this:
+	wget https://repo.continuum.io/archive/Anaconda3-2020.02-Linux-x86_64.sh
+   then
+	bash Anaconda3-2020.02-Linux-x86_64.sh
+   This will ask you to name a place to install anaconda. Do not install in it your login/home directory. Enter (this was mine):
+	/gscratch/pfaendtner/xqi/executables/
+   then enter "yes" if aksed to run conda init.
+3. once installation is sucessful, add the following to your ~/.login file
+	export PATH=/gscratch/pfaendtner/xqi/executables/anaconda3/bin:$PATH 
+4. issue the following command to install gcc and other programs
+	bash
+   now there will be a (base) in front of your id. Then enter below to install gcc-5
+	conda install -c psi4 gcc-5
+   After installation, check your default version of gcc by 
+	which gcc
+   It should direct you to the gcc in your anaconda, not /usrs/local/gcc.
+5. at this point, it's likely that you are missing the standard C++ library. Install it by
+	conda install -c anaconda libstdcxx-ng
+6. add lib path to yout  ~/.login file. Mine was:
+	export LD_LIBRARY_PATH="/gscratch/pfaendtner/xqi/executables/anaconda3/lib/:$LD_LIBRARY_PATH"
+
+Now you should be able to compile gromacs with CUDA.
+
+In the same build node or any inerative node
+1. untar the gromacs tarball and go the the directory
+	tar xvf gromacs-2019.tar.gz 
+	cd gromacs-2019/
+2. load the necessary compilers. The latest versions will be better. Mine was:
+	module load icc_19-impi_2019
+	module load cmake/3.11.2
+   add the path to Chowdury's cuda to you ~/.login file unless the cluster has more recent version installed as a module
+	export PATH=$PATH:/sw/contrib/cuda-10.1/bin
+3. in the gromacs-2019/ directory, enter:
+	mkdir bin build
+	cd bin
+	export GMXINST=`pwd`
+	cd ../build
+	cmake .. -DGMX_MPI=ON -DCMAKE_INSTALL_PREFIX=$GMXINST -DGMX_GPU=ON -DCUDA_TOOLKIT_ROOT_DIR=/sw/contrib/cuda-10.1  -DGMX_DEFAULT_SUFFIX=OFF -DGMX_BINARY_SUFFIX=_cuda -DGMX_LIBS_SUFFIX=_cuda
+4. after configuration, in the same build directory, install:
+	make -j install
+5. once this is done, add the following to you ~/.login file. Mine was:
+	export PATH=$PATH:/gscratch/pfaendtner/xqi/executables/GROMACS_CUDA/gromacs-2019/bin/bin
+6. in the bin folder, create a file (by typing "vi sourceme.sh") that you will need to source in your batch jobs:
+	module load icc_19-impi_2019
+	export LD_LIBRARY_PATH="/gscratch/pfaendtner/xqi/executables/anaconda3/lib/:$LD_LIBRARY_PATH"
+	source /gscratch/pfaendtner/xqi/executables/GROMACS_CUDA/gromacs-2019/bin/bin/GMXRC
+   mine was stored in "/gscratch/pfaendtner/xqi/executables/GROMACS_CUDA/gromacs-2019/bin". I will "source /gscratch/pfaendtner/xqi/executables/GROMACS_CUDA/gromacs-2019/bin/sourceme.sh" in the batch script
+
+To submit a batch job to our group gpu node, here is an example script:
+
+#################################################################################
+#!/bin/bash
+#SBATCH --job-name=solvate
+#SBATCH --account=pfaendtner
+#SBATCH --partition=pfaendtner-gpu
+#SBATCH --ntasks=1
+#### SBATCH --cpus-per-task=40
+#SBATCH --mem=20G
+#SBATCH --time=90:00:00
+#SBATCH --gres=gpu:2080ti:2  #### using 2 gpu. you can use up to 8.
+## SBATCH --workdir=$SLURM_SUBMIT_DIR
+
+echo "SLURM_JOBID="$SLURM_JOBID
+echo "SLURM_JOB_NODELIST"=$SLURM_JOB_NODELIST
+echo "SLURM_NNODES"=$SLURM_NNODES
+echo "SLURMTMPDIR="$SLURMTMPDIR
+
+echo "working directory = "$SLURM_SUBMIT_DIR
+
+
+### module load icc_19-impi_2019
+### source /gscratch/pfaendtner/xqi/executables/GROMACS_CUDA/gromacs-2019/bin/bin/GMXRC
+source /gscratch/pfaendtner/xqi/executables/GROMACS_CUDA/gromacs-2019/bin/sourceme.sh
+
+gmx_cuda mdrun -ntomp 16  -nb gpu -pme cpu -s nvt.tpr -c sys_nvt.gro -e sys_nvt.edr -x sys_nvt.xtc -g sys_nvt.log -v >& log.txt
+
+
+
+exit 0
+#################################################################################
+
+Submit this by
+	sbatch -p pfaendtner-gpu -A pfaendtner script.sh
