@@ -1,28 +1,34 @@
 ;
-;	GROMACS
-;	Energy Minimization Script
+;       GROMACS
+;       Energy Minimization Script
 ;
 ;
-define		= -DFLEXIBLE	; pass to preprocessor
-cpp		= usr/bin/cpp	; location of preprocessor
-constraints	= none
-integrator	= steep		; steepest decents minimum (else cg)
-nsteps		= 10000
+define          = -DFLEXIBLE    ; pass to preprocessor
+cpp             = usr/bin/cpp   ; location of preprocessor
+constraints     = none
+integrator      = steep         ; steepest decents minimum (else cg)
+nsteps          = 10000
 ;
-;	Energy Minimizing Stuff
+;       Energy Minimizing Stuff
 ;
-emtol		= 10  		; convergence total force(kJ/mol/nm) is smaller than
-emstep		= 0.01		; initial step size (nm)
-nstcomm		= 100		; frequency or COM motion removal
-ns_type		= grid
-rlist		= 1.4		; cut-off distance for short range neighbors
-rcoulomb	= 1.4		; distance for coulomb cut-off
-coulombtype	= PME		; electrostatics (Particle Mesh Ewald method)
-fourierspacing	= 0.12		; max grid spacing when using PPPM or PME
-vdw-type	= Shift
-rvdw		= 1.2		; VDW cut-off
-Tcoupl		= no		; temperature coupling
-Pcoupl		= no		; pressure coupling
-gen_vel		= no
+emtol           = 10            ; convergence total force(kJ/mol/nm) is smaller than
+emstep          = 0.01          ; initial step size (nm)
+nstcomm         = 100           ; frequency or COM motion removal
+ns_type         = grid
+rlist           = 1.0           ; cut-off distance for short range neighbors
+rcoulomb        = 1.0           ; distance for coulomb cut-off
+coulombtype     = PME           ; electrostatics (Particle Mesh Ewald method)
+fourierspacing  = 0.12          ; max grid spacing when using PPPM or PME
+vdw-type        = Shift
+rvdw            = 1.0           ; VDW cut-off
+Tcoupl          = no            ; temperature coupling
+Pcoupl          = no            ; pressure coupling
+gen_vel         = no
+
+; Freeze Groups
+;freezegrps             = AlkChain
+;freezedim              = N N Y
+;energygrps             = AlkChain
+;energygrp_excl         = AlkChain AlkChain
 
 
