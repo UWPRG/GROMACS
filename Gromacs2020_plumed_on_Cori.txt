@@ -1,0 +1,131 @@
+
+To use GROMACS 2020 on NERSC Cori:
+
+1. You can run GROMACS either in slurm jobs or on interactive nodes. There are two versions of GROMACS available on cori: knl and hsw (stands for haswell).
+
+2. If you are doing work interactively, please submit an interactive job first. 
+	
+If you'd like to use the knl version GROMACS, please:
+		salloc -N 1 -C knl -q interactive -t 04:00:00
+		module load gromacs/2020.2.knl
+
+If you'd like to use the hsw version GROMACS, please:
+		salloc -N 1 -C haswell -q interactive -t 04:00:00
+		module load gromacs/2020.2.hsw
+	
+3. The command to run GROMACS on an interactive node is "gms_sp", "sp" stands for "single precision". For example:
+		gmx_sp grompp -f npt.mdp -c system.gro -p topol.top -o npt.tpr
+		gmx_sp mdrun -s em.tpr -c em.gro -e em.edr -g em.log
+	
+4. You can only execute GROMACS mdrun command in a slurm job. The command "gmx_sp mdrun" is condensed to "mdrun_mpi_sp". To submit a GROMACS job, you will need to do all steps other than "mdrun" on an interactive mode beforehand. An example script.sh for GROMACS is:
+
+	For knl,
+		#!/bin/bash
+		#SBATCH --job-name=my_job
+		#SBATCH --qos=regular
+		#SBATCH --time=48:00:00
+		#SBATCH --time-min=24:00:00
+		#SBATCH --nodes=2
+		#SBATCH --tasks-per-node=32
+		#SBATCH --constraint=knl
+
+		module load gromacs/2020.2.knl
+
+		srun -n 64 mdrun_mpi_sp -s nvt -c nvt -e nvt -x nvt -g nvt -cpi -cpo -append -v >& log.txt
+		
+	For haswell,
+
+		#!/bin/bash
+		#SBATCH --job-name=my_job
+		#SBATCH --qos=regular
+		#SBATCH --time=48:00:00
+		#SBATCH --time-min=24:00:00
+		#SBATCH --nodes=2
+		#SBATCH --tasks-per-node=32
+		#SBATCH --constraint=haswell
+
+		module load gromacs/2020.2.hsw
+
+		srun -n 64 mdrun_mpi_sp -s nvt -c nvt -e nvt -x nvt -g nvt -cpi -cpo -append -v >& log.txt
+		
+		
+
+To use GROMACS 2020 + plumed 2.6 on Cori:
+
+1. If you see that the IT people put this GROMACS version (with plumed) into a module (I think they deleted it), please "module load gromacs/2020.2-plumed-2.6.1.hsw".
+
+2. If not, then "source /usr/common/software/gromacs/2020.2-plumed-2.6.1.hsw/bin/GMXRC" to call this GROMACS version.
+
+3. If you want to submit a job that calls plumed, make sure you submit to the haswell nodes. An example script without multiple walker and replica exchange is:
+
+		#!/bin/bash
+		#SBATCH --job-name=my_plumed_job
+		#SBATCH --qos=regular
+		#SBATCH --time=48:00:00
+		#SBATCH --time-min=24:00:00
+		#SBATCH --nodes=1
+		#SBATCH --tasks-per-node=32
+		#SBATCH --constraint=haswell
+
+		source /usr/common/software/gromacs/2020.2-plumed-2.6.1.hsw/bin/GMXRC
+		plumed_dir=/usr/common/software/plumed2/2.6.1-dyn/intel/hsw
+		export PATH="${plumed_dir}/bin:$PATH"
+		export LIBRARY_PATH="${plumed_dir}/lib:$LIBRARY_PATH"
+		export LD_LIBRARY_PATH="${plumed_dir}/lib:$LD_LIBRARY_PATH"
+		export PLUMED_KERNEL="${plumed_dir}/lib/libplumedKernel.so"
+		export PLUMED_VIMPATH="${plumed_dir}/lib/plumed/vim"
+
+		srun -n 32 mdrun_mpi_sp -s nvt -c nvt -e nvt -x nvt -g nvt -plumed plumed.dat -v >& log.txt
+		
+4. If you want to submit a plumed job with multiple walker, below is one way to cope with GROMACS 2020:
+
+	a. When starting from scratch, grab a haswell interactive node and "source /usr/common/software/gromacs/2020.2-plumed-2.6.1.hsw/bin/GMXRC"
+
+	b. Put all the necessary .itp, .pdb, .mdp, topology, .gro (for all walkers), plumed.dat and other files in a single master directory. 
+
+	c. If you want to have N walkers, then generate N subdirectory under your master directory. Each subdirectory should contain a plumed.dat file and a .tpr file. If your plumed.dat calls a .pdb in its own working subdirectory, you should also place a .pdb file in each subdirectory. Please note that for GROMACS 2020, the following line in plumed.dat is different than before. An example is:
+	
+		FILE=../HILLS.com,../HILLS.rg1,../HILLS.rg2
+			
+	In this way, all HILLS file will be placed under the master directory; otherwise, they will be put under the subdirectory for walker 0 and wrong hill height will be deposited when you restart.
+		
+	An example .bash file for generating the subdirectories and moving necessary files to the subdirectories is:
+		#!/bin/bash
+		nfinal=3
+		count=0
+		for ((i=0;i<=$nfinal;i++)); do
+		  count=$i
+		  mkdir $count
+		  gmx_sp grompp -f nvt.mdp -c walker$count.gro -p topol.top -o $count/replica.tpr 
+		  cp car9.pdb plumed.dat $count
+		done;
+			
+	Please note that all the .tpr files should have the same name. In this example, I have 4 subdirectories named: 0, 1, 2, and 3. Each subdirectory contains three files, namely: replica.tpr, plumed.dat, car9.pdb.
+		
+	d. Submit your simulation in the master directory and an example script.sh file is:
+
+		#!/bin/bash
+		#SBATCH --job-name=1capped
+		#SBATCH --qos=regular
+		#SBATCH --time=48:00:00
+		#SBATCH --time-min=24:00:00
+		#SBATCH --nodes=4
+		#SBATCH --tasks-per-node=32
+		#SBATCH --constraint=haswell
+
+		source /usr/common/software/gromacs/2020.2-plumed-2.6.1.hsw/bin/GMXRC
+		plumed_dir=/usr/common/software/plumed2/2.6.1-dyn/intel/hsw
+		export PATH="${plumed_dir}/bin:$PATH"
+		export LIBRARY_PATH="${plumed_dir}/lib:$LIBRARY_PATH"
+		export LD_LIBRARY_PATH="${plumed_dir}/lib:$LD_LIBRARY_PATH"
+		export PLUMED_KERNEL="${plumed_dir}/lib/libplumedKernel.so"
+		export PLUMED_VIMPATH="${plumed_dir}/lib/plumed/vim"
+
+		srun -n 128 mdrun_mpi_sp -multidir 0 1 2 3 -s replica -c replica -e replica -x replica -g replica -plumed plumed.dat -cpi -cpo -append -v >& log.txt
+
+	e.In this way, you should have all HILLS file written in the master directory, and a COLVAR.i files in each subdirectory. When you restart a WT MetaD, you should expect a hill height different from your initial setup in the first restart step; otherwise, check your input files. 
+
+	
+	
+
+	
